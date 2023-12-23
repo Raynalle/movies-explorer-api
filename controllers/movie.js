@@ -11,7 +11,7 @@ const getMovies = (req, res, next) => {
 };
 
 const createMovie = (req, res, next) => {
-  req.owner = req.user_id;
+  req.body.owner = req.user._id;
 
   Movie.create(req.body)
     .then((movie) => {

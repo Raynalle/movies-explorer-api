@@ -35,7 +35,6 @@ const validateCreateMovie = celebrate({
     movieId: Joi.number().required(),
     nameRU: Joi.string().required(),
     nameEN: Joi.string().required(),
-    owner: Joi.string().required(),
   }),
 });
 
