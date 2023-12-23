@@ -11,11 +11,11 @@ const getMovies = (req, res, next) => {
 };
 
 const createMovie = (req, res, next) => {
-  const owner = req.user_id;
+  req.owner = req.user_id;
 
-  Movie.create(owner)
+  Movie.create(req.body)
     .then((movie) => {
-      res.status(201).send({ data: movie });
+      res.status(201).send(movie);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -33,8 +33,7 @@ const deleteMovie = (req, res, next) => {
         next(new NotFound('Фильм с таким id не найден'));
         return;
       }
-
-      if (movie.owner.toString() !== req.user_id.toString()) {
+      if (movie.owner.toString() !== req.user._id.toString()) {
         next(new Forbidden('Вы не можете удалять фильмы других пользователей'));
         return;
       }

@@ -21,6 +21,11 @@ const getCurrentUser = (req, res, next) => {
 const updateCurrentUser = (req, res, next) => {
   const { name, email } = req.body;
 
+  if (name === undefined && email === undefined) {
+    next(new BadRequest('Переданы некорректные данные'));
+    return;
+  }
+
   User.findByIdAndUpdate(req.user._id, { name, email }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
@@ -31,7 +36,7 @@ const updateCurrentUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValiadtionError') {
-        next(new BadRequest('Пеереданы некорректные данные'));
+        next(new BadRequest('Переданы некорректные данные'));
         return;
       }
       next(err);
