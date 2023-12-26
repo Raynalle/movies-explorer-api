@@ -13,6 +13,6 @@ Router.post('/signin', validateSignIn, login);
 
 Router.use('/users', auth, usersRouter);
 Router.use('/movies', auth, moviesRouter);
-Router.use('*', errorRouter);
+Router.use('*', auth, errorRouter);
 
 module.exports = Router;
