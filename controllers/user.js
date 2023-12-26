@@ -4,6 +4,13 @@ const User = require('../models/user');
 const NotFound = require('../utils/errors/NotFound');
 const BadRequest = require('../utils/errors/BadRequest');
 const Conflict = require('../utils/errors/Conflict');
+const {
+  NOT_FOUND_USER,
+  USER_CONFLECT,
+  VALIDATION_ERROR_MESSAGE,
+  INVALID_DATA, VALIDATION_ERROR,
+  DUPLICATE_ERROR,
+} = require('../utils/constants/constants');
 
 const getCurrentUser = (req, res, next) => {
   const _id = req.user;
@@ -11,7 +18,7 @@ const getCurrentUser = (req, res, next) => {
   User.findById(_id)
     .then((user) => {
       if (!user) {
-        throw new NotFound('Пользователь не найден');
+        throw new NotFound(NOT_FOUND_USER);
       }
       return res.status(200).send(user);
     })
@@ -22,21 +29,25 @@ const updateCurrentUser = (req, res, next) => {
   const { name, email } = req.body;
 
   if (name === undefined && email === undefined) {
-    next(new BadRequest('Переданы некорректные данные'));
+    next(new BadRequest(INVALID_DATA));
     return;
   }
 
   User.findByIdAndUpdate(req.user._id, { name, email }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        throw new NotFound('Пользователь не найден');
+        throw new NotFound(NOT_FOUND_USER);
       } else {
         res.send(user);
       }
     })
     .catch((err) => {
-      if (err.name === 'ValiadtionError') {
-        next(new BadRequest('Переданы некорректные данные'));
+      if (err.name === VALIDATION_ERROR) {
+        next(new BadRequest(INVALID_DATA));
+        return;
+      }
+      if (err.code === DUPLICATE_ERROR) {
+        next(new Conflict(USER_CONFLECT));
         return;
       }
       next(err);
@@ -77,10 +88,10 @@ const createUser = (req, res, next) => {
       res.status(201).send(data);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new BadRequest('Ошибка валидации'));
-      } else if (err.code === 11000) {
-        next(new Conflict('Пользователь с таким email уже существует'));
+      if (err.name === VALIDATION_ERROR) {
+        next(new BadRequest(VALIDATION_ERROR_MESSAGE));
+      } else if (err.code === DUPLICATE_ERROR) {
+        next(new Conflict(USER_CONFLECT));
       } else {
         next(err);
       }

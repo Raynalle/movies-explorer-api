@@ -8,16 +8,17 @@ const { errors } = require('celebrate');
 const helmet = require('helmet');
 const cors = require('cors');
 const router = require('./routes/index');
-const { port, dbAdress } = require('./utils/constants/constants');
+const { PORT_NUMDER, ADDRESS_DB } = require('./utils/constants/constants');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const rateLimiter = require('./utils/rateLimiter');
 const handleErrors = require('./middlewares/handleErrors');
+const CRASH_TEST_MESSAGE = require('./utils/constants/constants');
 
-const { PORT = port } = process.env;
+const { PORT = PORT_NUMDER } = process.env;
 
 const app = express();
 
-mongoose.connect(dbAdress, {
+mongoose.connect(ADDRESS_DB, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -30,13 +31,14 @@ app.use(bodyParser.urlencoded({
   extended: true,
 }));
 
-app.use('/', router);
-
 app.use(requestLogger);
 app.use(helmet());
+
+app.use('/', router);
+
 app.get('/crash-test', () => {
   setTimeout(() => {
-    throw new Error('Сервер сейчас упадёт');
+    throw new Error(CRASH_TEST_MESSAGE);
   }, 0);
 });
 

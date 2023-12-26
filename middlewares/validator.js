@@ -9,12 +9,6 @@ const isUrl = (link) => {
   throw new Error('Невалидный url');
 };
 
-const validateId = celebrate({
-  params: Joi.object().keys({
-    _id: Joi.string().hex().length(24),
-  }),
-});
-
 const validateUpdateCurrentUser = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30).required(),
@@ -60,7 +54,6 @@ const validateSignUp = celebrate({
 });
 
 module.exports = {
-  validateId,
   validateUpdateCurrentUser,
   validateCreateMovie,
   validateDeleteMovie,
